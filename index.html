@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-  <title>Studio Week 3</title>
-  <!-- Add Mapbox GL JS JavaScript file -->
-  <script src='https://api.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.js'></script>
+  <title>Studio Week 4 - Rat Map! </title>
+  <!-- Add LeafletJavaScript file -->
+  <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <!-- Add in the Mapbox GL JS CSS file -->
-  <link href='https://api.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.css' rel='stylesheet' />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
     <!-- Add styling info for the map -->
     <!-- Set the map's width: 800px and height: 600px in a `style` tag -->
+  <style>
+    #map{ height: 100% }
   </style>
   <!-- Adding styling info for page layout by reading in a CSS file -->
-  <link rel="stylesheet" href="styles.css">
-
 </head>
 
 <body>
-  <h1>Studio Week 3 <br> Choropleth Map with Mapbox </h1>
+  <h1>Studio Week 4 <br> Rat Map with Leaflet</h1>
   <!-- Add multiple pages to web page-->
   <!-- active class displays the grey box around current page-->
   <ul>
@@ -28,74 +28,27 @@
 
   <!-- Add a div to give the map somewhere to go -->
     <div id='map'></div>
-    <div class='map-overlay' id='features'><h2>US population density</h2><div id='pd'><p>Hover over a state!</p></div></div>
-    <div class='map-overlay' id='legend'><p>Legend</p></div>
-  
+
     <script>
-    // Add your access token
-    mapboxgl.accessToken = 'pk.eyJ1IjoiZWV2ZW5kZW4iLCJhIjoiY2tsaWV4ZjgxMDZ5bTJwbHlud2ZpbmdrayJ9.YncVdwMOnwOqwF24Pm5ZhA';
-    
-    // Create a variable called "map" to house your mao
-    var map = new mapboxgl.Map({
-      container: 'map', // container id
-      style: 'mapbox://styles/eevenden/cknqe7nrf1bad17oyo4bwegc1', // replace this with your style URL
+    // Initialize map
+    var map = L.map('map').setView([42.35, -71.08], 13);
+
+    // Load tile layer
+    L.tileLayer('http://tiles.mapc.org/basemap/{z}/{x}/{y}.png', {
+      attribution: 'Tiles by <a href="http://mapc.org">MAPC</a>, Data by <a href="http://mass.gov/mgis">MassGIS</a>',
+      maxZoom: 17,
+      minZoom: 9,
+    }).addTo(map);
+
+    //add our own Rat Data
+    $.getJSON("rodents.geojson", function(data){
+      L.geojson(data).addTo(map);
     });
-      
-    map.on('load', function() {
-      // make a pointer cursor
-      map.getCanvas().style.cursor = 'default';
-      // set map bounds to the continental US
-      map.fitBounds([[-133.2421875, 16.972741], [-47.63671875, 52.696361]]);
-      
-      // make list of legend values
-      var layers = ['0-10', 
-                    '10-20', 
-                    '20-50', 
-                    '50-100', 
-                    '100-200', 
-                    '200-500', 
-                    '500-1000', 
-                    '1000+'];
-      var colors = ['#FFEDA0', 
-                    '#FED976', 
-                    '#FEB24C', 
-                    '#FD8D3C', 
-                    '#FC4E2A', 
-                    '#E31A1C', 
-                    '#BD0026', 
-                    '#800026'];
-      
-      // join the two lists in a panel
-      for (i = 0; i < layers.length; i++) {
-        var layer = layers[i];
-        var color = colors[i];
-        var item = document.createElement('div');
-        var key = document.createElement('span');
-        key.className = 'legend-key';
-        key.style.backgroundColor = color;
-        var value = document.createElement('span');
-        value.innerHTML = layer;
-        item.appendChild(key);
-        item.appendChild(value);
-        legend.appendChild(item);
-      }
-      
-      // Write function for mouse movement over the states - updates information in the panel. 
-      map.on('mousemove', function(e) {
-        var states = map.queryRenderedFeatures(e.point, {
-          layers: ['statedata']
-        });
-        
-        if (states.length > 0) {
-          document.getElementById('pd').innerHTML = '<h3><strong>' + 
-            states[0].properties.name + '</strong></h3><p><strong><em>' + 
-            states[0].properties.density + '</strong> people per square mile</em></p>';
-        } else {
-          document.getElementById('pd').innerHTML = 
-            '<p>Hover over a state!</p>';
-        }
-      });     
-    });
+
+
+
+
+
   </script>
 </body>
 </html>
