@@ -11,9 +11,10 @@
   <!-- Adding Leaflet JavaScript file -->
   <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
 
-   <!-- Adding JavaScript library -->
+  <!-- Adding JavaScript library -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script src="./leaflet-heat.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.3.0/dist/leaflet.markercluster.js"></script>
 
   <!-- Add styling info for the map -->
   <style type="text/css">
@@ -25,75 +26,48 @@
 </head>
 
 <body>
-  <h1>Studio Week 4 <br> Rat Map with Leaflet</h1>
+
+  <h1>Studio Week 3 <br> Choropleth Map with Mapbox </h1>
   <!-- Add multiple pages to web page-->
   <!-- active class displays the grey box around current page-->
   <ul>
-    <li><a class="active" href="index.html" target="_self">Output 1</a></li>
+    <li><a class="active" href="index.html" target="_self"> Rat Map </a></li>
     <li><a href="mapbox-interaction.html" target="_self">Output 2</a></li>
     <li><a href="mapbox-turfjs.html" target="_self">Output 3</a></li>
   </ul>
   <br>
 
-  <!-- Add a div to give the map somewhere to go -->
-  <div id="map">
+  <div id="map"></div>
+
   <script>
-    // initialize the map
-    var map = L.map('map').setView([42.35, -71.08], 13);
 
-    // load a tile layer
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '<a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a> | Data by <a href="http://mass.gov/mgis">MassGIS</a>',
+  // initialize the map
+  var map = L.map('map').setView([42.35, -71.08], 13);
 
+  // load a tile layer
+  L.tileLayer('http://tiles.mapc.org/basemap/{z}/{x}/{y}.png',
+    {
+      attribution: 'Tiles by <a href="http://mapc.org">MAPC</a>, Data by <a href="http://mass.gov/mgis">MassGIS</a>',
       maxZoom: 17,
       minZoom: 9
     }).addTo(map);
 
-    // load GeoJSON from an external file
-    $.getJSON("neighborhoods.geojson", function(hoodData) {
-      L.geoJson(hoodData, {
-        style: function(feature) {
-          var fillColor,
-            density = feature.properties.density;
-          if (density > 80) fillColor = "#993404";
-          else if (density > 40) fillColor = "#d95f0e";
-          else if (density > 20) fillColor = "#fe9929";
-          else if (density > 10) fillColor = "#fed98e";
-          else if (density > 0) fillColor = "#ffffd4";
-          else fillColor = "#f7f7f7"; // no data
-          return {
-            color: "#999",
-            weight: 1,
-            fillColor: fillColor,
-            fillOpacity: .8
-          };
-        },
-        onEachFeature: function(feature, layer) {
-          layer.bindPopup("<strong>" + feature.properties.Name + "</strong><br/>" + feature.properties.density + " rats per square mile")
-        }
-      }).addTo(map);
+    // Load GeoJSON from an external file
+
+    $.getJSON("bostonrats.geojson",function(data){
+      var locations = data.features.map(function(rat) {
+        var location = rat.geometry.coordinates.reverse();
+        location.push(0.5);
+        return location;
+      });
+
+      var heat = L.heatLayer(locations, { radius: 35 });
+      map.addLayer(heat);
     });
 
-    $.getJSON("bostonrats.geojson", function(data) {
-      var ratIcon = L.icon({
-        iconUrl: 'http://andywoodruff.com/maptime-leaflet/rat.png',
-        iconSize: [60, 50]
-      });
-      var rodents = L.geoJson(data, {
-        pointToLayer: function(feature, latlng) {
-          var marker = L.marker(latlng, {
-            icon: ratIcon
-          });
-          marker.bindPopup(feature.properties.Location + '<br/>' + feature.properties.OPEN_DT);
-          return marker;
-        }
-      });
-      var clusters = L.markerClusterGroup();
-      clusters.addLayer(rodents);
-      map.addLayer(clusters);
-    });
+    // Add Scale Bar to Map
+    L.control.scale({position: 'bottomleft'}).addTo(map);
 
   </script>
-  </div>
 </body>
 </html>
