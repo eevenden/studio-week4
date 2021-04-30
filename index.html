@@ -52,21 +52,20 @@
       minZoom: 9
     }).addTo(map);
 
-    // Load GeoJSON from an external file
-
-    $.getJSON("bostonrats.geojson",function(data){
-      var locations = data.features.map(function(rat) {
-        var location = rat.geometry.coordinates.reverse();
-        location.push(0.5);
-        return location;
-      });
-
-      var heat = L.heatLayer(locations, { radius: 35 });
-      map.addLayer(heat);
+  // Load GeoJSON from an external file
+  $.getJSON("bostonrats.geojson",function(data){
+    var locations = data.features.map(function(rat) {
+      var location = rat.geometry.coordinates.reverse();
+      location.push(0.5);
+      return location;
     });
 
-    // Add Scale Bar to Map
-    L.control.scale({position: 'bottomleft'}).addTo(map);
+    var heat = L.heatLayer(locations, { radius: 35 });
+    map.addLayer(heat);
+  });
+
+  // Add Scale Bar to Map
+  L.control.scale({position: 'bottomleft'}).addTo(map);
 
   </script>
 </body>
