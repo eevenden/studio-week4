@@ -41,19 +41,20 @@
   <script>
 
   // initialize the map
-  var map = L.map('map').setView([42.35, -71.08], 13);
+  var map = L.map('map').setView([39.953166, -75.163435], 13);
 
   // load a tile layer
-  L.tileLayer('http://tiles.mapc.org/basemap/{z}/{x}/{y}.png',
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     {
-      attribution: 'Tiles by <a href="http://mapc.org">MAPC</a>, Data by <a href="http://mass.gov/mgis">MassGIS</a>',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 17,
       minZoom: 9
     }).addTo(map);
 
-    // Load GeoJSON from an external file
-
-
+  // Load GeoJSON from an external file
+  $.getJSON("voter_registration_philly_2016.geojson", function (data){
+    L.geoJson(data).addTo(map);
+  });
 
   </script>
 </body>
